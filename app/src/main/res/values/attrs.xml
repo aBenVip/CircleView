@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <declare-styleable name="CircleView">
+        <attr name="defaultWith" format="dimension"/>
+        <attr name="defaultColor" format="color"/>
+        <attr name="currentWith" format="dimension"/>
+        <attr name="currentColor" format="color"/>
+        <attr name="textColor" format="color"/>
+        <attr name="roundWidth" format="dimension"/>
+        <attr name="rateText" format="reference"/>
+        <attr name="textPadding" format="dimension"/>
+    </declare-styleable>
+</resources>
