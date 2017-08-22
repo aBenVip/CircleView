@@ -7,6 +7,7 @@ import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.RectF;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.View;
 import android.view.animation.Animation;
 import android.view.animation.Transformation;
@@ -65,7 +66,7 @@ public class CircleView extends View {
         TypedArray typedArray = context.obtainStyledAttributes(attrs, R.styleable.CircleView);
         if (typedArray != null) {
             defaultColor = typedArray.getColor(R.styleable.CircleView_defaultColor, Color.GRAY);
-            defaultWidth = typedArray.getDimensionPixelSize(R.styleable.CircleView_defaultWith, dip2px(context, 10));
+            defaultWidth = typedArray.getDimensionPixelSize(R.styleable.CircleView_defaultWith, dip2px(context, 18));
             currentColor = typedArray.getColor(R.styleable.CircleView_currentColor, Color.RED);
             currentWidth = typedArray.getDimensionPixelSize(R.styleable.CircleView_currentWith, dip2px(context, 10));
             roundWidth = typedArray.getDimensionPixelSize(R.styleable.CircleView_roundWidth, dip2px(context, 90));
@@ -107,36 +108,61 @@ public class CircleView extends View {
         canvas.drawArc(rectF, 180, mSweepAnglePer, false, currentPaint);
         //Y为基线位置
         Paint.FontMetricsInt fontMetrics = textPaint.getFontMetricsInt();
-        canvas.drawText(new DecimalFormat(".0").format(mCount * 100) + "%", getWidth() / 2, (rectF.top + roundWidth - fontMetrics.top + fontMetrics.bottom) / 2, textPaint);
-        canvas.drawText(String.valueOf(rateText), getWidth() / 2, (rectF.top + roundWidth - fontMetrics.top * 2 + fontMetrics.bottom * 2 + textPadding) / 2, textPaint);
+        canvas.drawText(new DecimalFormat(".0").format(mCount * 100) + "%", getWidth() / 2, (rectF.top + roundWidth + defaultWidth - fontMetrics.top + fontMetrics.bottom) / 2, textPaint);
+        canvas.drawText(String.valueOf(rateText), getWidth() / 2, (rectF.top + roundWidth + defaultWidth - fontMetrics.top * 2 + fontMetrics.bottom * 2 + textPadding) / 2, textPaint);
     }
 
     @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
+        int desiredWidth = 400;
+        int desiredHeight = 200;
 
-        int height = getDefaultSize(getSuggestedMinimumHeight(), heightMeasureSpec);
-        int width = getDefaultSize(getSuggestedMinimumWidth(), widthMeasureSpec);
-        setMeasuredDimension(width, height + 20);// 强制改View为以最短边为长度的正方形
-        defaultWidth = textScale(35, width);// 圆弧的宽度
-        float pressExtraStrokeWidth = textScale(2, width);
+        int widthMode = MeasureSpec.getMode(widthMeasureSpec);
+        int widthSize = MeasureSpec.getSize(widthMeasureSpec);
+        int heightMode = MeasureSpec.getMode(heightMeasureSpec);
+        int heightSize = MeasureSpec.getSize(heightMeasureSpec);
+
+        int width;
+        int height;
+
+        switch (widthMode) {
+            case MeasureSpec.EXACTLY:
+            case MeasureSpec.UNSPECIFIED:
+                width = widthSize;
+                break;
+            case MeasureSpec.AT_MOST:
+                width = Math.min(desiredWidth, widthSize);
+                break;
+            default:
+                width = desiredWidth;
+                break;
+        }
+        switch (heightMode) {
+            case MeasureSpec.EXACTLY:
+            case MeasureSpec.UNSPECIFIED:
+                height = heightSize;
+                break;
+            case MeasureSpec.AT_MOST:
+                height = Math.min(desiredHeight, heightSize);
+                break;
+            default:
+                height = desiredHeight;
+                break;
+        }
+
+        //MUST CALL THIS
+        setMeasuredDimension(width, height + 20);
+
+       /* int height = getDefaultSize(getSuggestedMinimumHeight(), heightMeasureSpec);
+        int width = getDefaultSize(getSuggestedMinimumWidth(), widthMeasureSpec);*/
+//        setMeasuredDimension(width, height+20);// 强制改View为以最短边为长度的正方形
+        float pressExtraStrokeWidth = 2;
         rectF.set(defaultWidth + pressExtraStrokeWidth,
                 defaultWidth + pressExtraStrokeWidth, width
                         - defaultWidth - pressExtraStrokeWidth, width
                         - defaultWidth - pressExtraStrokeWidth);// 设置矩形
         defaultPaint.setStrokeWidth(defaultWidth);
         currentPaint.setStrokeWidth(defaultWidth);
-        currentPaint.setShadowLayer(textScale(10, width), 0, 0, Color.rgb(127, 127, 127));// 设置阴影
-    }
-
-    /**
-     * 根据控件的大小改变绝对位置的比例
-     *
-     * @param n
-     * @param m
-     * @return
-     */
-    public float textScale(float n, float m) {
-        return n / 500 * m;
     }
 
     private class BarAnimation extends Animation {
@@ -241,6 +267,7 @@ public class CircleView extends View {
     public void setmSweepAnglePer(float mSweepAnglePer) {
         this.mSweepAnglePer = mSweepAnglePer;
     }
+
     public CharSequence getRateText() {
         return rateText;
     }
