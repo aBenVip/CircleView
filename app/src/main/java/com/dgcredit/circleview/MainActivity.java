@@ -3,7 +3,7 @@ package com.dgcredit.circleview;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 
-import me.wangyuwei.loadingview.LoadingView;
+import com.ben.mvp.libs.CircleView;
 
 public class MainActivity extends AppCompatActivity {
 
